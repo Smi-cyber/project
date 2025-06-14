@@ -1,25 +1,41 @@
+import os # Import the 'os' module to access environment variables
 import psycopg2
 import psycopg2.extras # Needed for DictCursor
 
 # --- Database Connection Details ---
-# IMPORTANT: Replace these with your actual PostgreSQL credentials
-DB_NAME = "bincom_election_db"
-DB_USER = "postgres"     # <--- REPLACE THIS with your PostgreSQL username
-DB_PASSWORD = "admin" # <--- REPLACE THIS with your PostgreSQL password
-DB_HOST = "localhost"
-DB_PORT = "5432"
+# IMPORTANT: These hardcoded values are for LOCAL DEVELOPMENT ONLY.
+# They will be overridden by the DATABASE_URL environment variable on Render.
+DB_NAME = os.environ.get("DB_NAME", "bincom_election_db") # Fallback for local
+DB_USER = os.environ.get("DB_USER", "postgres")           # Fallback for local
+DB_PASSWORD = os.environ.get("DB_PASSWORD", "admin")      # Fallback for local
+DB_HOST = os.environ.get("DB_HOST", "localhost")          # Fallback for local
+DB_PORT = os.environ.get("DB_PORT", "5432")               # Fallback for local
+
 
 def get_db_connection():
     """Establishes and returns a new database connection."""
     conn = None
     try:
-        conn = psycopg2.connect(
-            dbname=DB_NAME,
-            user=DB_USER,
-            password=DB_PASSWORD,
-            host=DB_HOST,
-            port=DB_PORT
-        )
+        # --- CRITICAL CHANGE FOR RENDER.COM DEPLOYMENT ---
+        # Prioritize DATABASE_URL environment variable provided by Render
+        DATABASE_URL = os.environ.get('DATABASE_URL')
+
+        if DATABASE_URL:
+            # If DATABASE_URL is set (as it will be on Render), use it directly
+            conn = psycopg2.connect(DATABASE_URL)
+            print("Connected using DATABASE_URL environment variable.") # For debugging
+        else:
+            # Fallback to individual environment variables or hardcoded values for local development
+            # It's good practice to also read these from environment variables even locally
+            # if you want to avoid hardcoding completely.
+            print("DATABASE_URL not found. Attempting connection with individual DB variables.") # For debugging
+            conn = psycopg2.connect(
+                dbname=DB_NAME,
+                user=DB_USER,
+                password=DB_PASSWORD,
+                host=DB_HOST,
+                port=DB_PORT
+            )
         return conn
     except psycopg2.Error as e:
         print(f"Database connection error: {e}")
@@ -52,10 +68,11 @@ def query_db(query, args=(), fetchone=False, fetchall=False, commit=False):
             return None # No data to return for commit operations
         elif fetchone:
             result = cur.fetchone()
-            return dict(result) if result else None # Convert Row to dict, handle None
+            # Convert Row to dict, handle None. psycopg2.extras.DictRow behaves like a dict.
+            return dict(result) if result else None
         elif fetchall:
             results = cur.fetchall()
-            return [dict(row) for row in results] # Convert all Rows to dicts
+            return [dict(row) for row in results] # Convert all DictRows to dicts
         else:
             return None # For queries that don't fetch (e.g., CREATE TABLE, DROP TABLE without RETURNING)
 
