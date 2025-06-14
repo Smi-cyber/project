@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Question 3: Store New Results</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>Question 3: Store New Polling Unit Results</h1>
+        <p><a href="{{ url_for('index') }}">Back to Home</a></p>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <ul class="flashes">
+                {% for category, message in messages %}
+                    <li class="{{ category }}">{{ message }}</li>
+                {% endfor %}
+                </ul>
+            {% endif %}
+        {% endwith %}
+
+        <div class="form-section">
+            <h2>Add New Polling Unit & Results</h2>
+            <form method="POST" action="{{ url_for('q3_page') }}">
+                <label for="polling_unit_name">New Polling Unit Name:</label>
+                <input type="text" id="polling_unit_name" name="polling_unit_name" required><br>
+
+                <label for="lga_id">Select LGA:</label>
+                <select name="lga_id" id="lga_id" required>
+                    <option value="">-- Select LGA --</option>
+                    {% for lga in lgas %}
+                    <option value="{{ lga.lga_id }}">{{ lga.lga_name }}</option>
+                    {% endfor %}
+                </select><br>
+
+                <label for="ward_id">Select Ward:</label>
+                <select name="ward_id" id="ward_id" required>
+                    <option value="">-- Select Ward --</option>
+                    {# You might want to filter wards by selected LGA using JavaScript #}
+                    {% for ward in wards %}
+                    <option value="{{ ward.ward_id }}">{{ ward.ward_name }}</option>
+                    {% endfor %}
+                </select><br>
+
+                <label for="entered_by_user">Your Name (Entered By):</label>
+                <input type="text" id="entered_by_user" name="entered_by_user" required><br>
+
+                <h3>Party Scores:</h3>
+                {% for party in parties %}
+                <div class="party-score-input">
+                    <label for="party_score_{{ party.partyid }}">{{ party.partyname }} Score:</label>
+                    <input type="number" id="party_score_{{ party.partyid }}" name="party_score_{{ party.partyid }}" min="0" value="0" required>
+                </div>
+                {% endfor %}
+                
+                <button type="submit">Save New Results</button>
+            </form>
+        </div>
+    </div>
+</body>
+</html>

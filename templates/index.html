@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bincom Election Results</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>Welcome to the Bincom Election Results Application</h1>
+
+        <p>Select an option below to view or manage election data:</p>
+
+        <nav>
+            <ul>
+                <li><a href="{{ url_for('q1_page') }}">Question 1: View Polling Unit Results</a></li>
+                <li><a href="{{ url_for('q2_page') }}">Question 2: View Summed LGA Results</a></li>
+                <li><a href="{{ url_for('q3_page') }}">Question 3: Store New Polling Unit Results</a></li>
+            </ul>
+        </nav>
+        
+        <div class="footer">
+            <p>&copy; 2024 Bincom Test App</p>
+        </div>
+    </div>
+</body>
+</html>

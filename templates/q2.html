@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Question 2: Summed LGA Results</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>Question 2: Summed LGA Results</h1>
+        <p><a href="{{ url_for('index') }}">Back to Home</a></p>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <ul class="flashes">
+                {% for category, message in messages %}
+                    <li class="{{ category }}">{{ message }}</li>
+                {% endfor %}
+                </ul>
+            {% endif %}
+        {% endwith %}
+
+        <div class="form-section">
+            <h2>Select LGA</h2>
+            <form method="POST" action="{{ url_for('q2_page') }}">
+                <label for="lga_id">Choose an LGA:</label>
+                <select name="lga_id" id="lga_id" required>
+                    <option value="">-- Select LGA --</option>
+                    {% for lga in lgas %}
+                    <option value="{{ lga.lga_id }}">{{ lga.lga_name }}</option>
+                    {% endfor %}
+                </select>
+                <button type="submit">View Summed Results</button>
+            </form>
+        </div>
+
+        {% if selected_lga_name %}
+            <div class="results-section">
+                <h2>Summed Results for {{ selected_lga_name }} LGA</h2>
+                {% if results %}
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Party</th>
+                            <th>Total Score</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for result in results %}
+                        <tr>
+                            <td>{{ result.party_abbreviation }}</td>
+                            <td>{{ result.total_score }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                {% else %}
+                    <p>No results found for this LGA.</p>
+                {% endif %}
+            </div>
+        {% elif request.method == 'POST' %}
+            <p>Please select a valid LGA to view summed results.</p>
+        {% endif %}
+    </div>
+</body>
+</html>
